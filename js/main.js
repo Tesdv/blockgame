@@ -16,18 +16,25 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-const world = createWorld();
-
-const spawn = findSpawn(world);
-player.x = spawn.x;
-player.y = spawn.y;
-
+let world = createWorld();
 let hoverTile = null;
+
 const getHoverTile = setupInput(
   canvas,
   e => getMouseTile(e, canvas, scale, { x: camX, y: camY }, TILE_SIZE),
   world, WORLD_WIDTH, WORLD_HEIGHT
 );
+
+function initWorld(seed) {
+  world = createWorld(seed);
+  const spawn = findSpawn(world);
+  player.x = spawn.x;
+  player.y = spawn.y;
+  player.vx = 0;
+  player.vy = 0;
+  updateCamera(player, TILE_SIZE, canvas, scale);
+  hoverTile = null;
+}
 
 function update(dt) {
   player.vx = 0;
@@ -56,3 +63,9 @@ function loop(timestamp) {
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+
+document.getElementById('generateBtn').addEventListener('click', () => {
+  const seedValue = document.getElementById('seedInput').value;
+  const seed = parseInt(seedValue);
+  initWorld(isNaN(seed) ? 6745 : seed);
+});
