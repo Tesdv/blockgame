@@ -14,9 +14,7 @@ export const TILE_COLORS = [
   "#eaeaea" // marble (light gray)
 ];
 
-// Block/ore spawn rules
 export const BLOCK_SPAWN_RULES = [
-  // { id, minDepth (0-1), rarity (0-1) }
   { id: 3, minDepth: 0.4, rarity: 0.15 }, // stone
   { id: 5, minDepth: 0.6, rarity: 0.02 }, // obsidian
   { id: 7, minDepth: 0.6, rarity: 0.02 }, // marble: appears below 30% depth, rare
