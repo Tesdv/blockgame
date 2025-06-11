@@ -1,5 +1,5 @@
 export const TILE_SIZE = 80;
-export const WORLD_WIDTH = 50;
+export const WORLD_WIDTH = 150;
 export const WORLD_HEIGHT = 80;
 export const GRAVITY = 0.0025;
 export const TERMINAL_VELOCITY = 0.4;
@@ -11,8 +11,10 @@ export const TILE_COLORS = [
   "#222222", // bedrock
   "#3b1f4a", // obsidian
   "#ff6600",  // lava (orange-red)
-  "#eaeaea" // marble (light gray)
+  "#eaeaea", // marble (light gray)
+  "#0e01ff" // water (blue)
 ];
+export const WATER = 8;
 
 export const BLOCK_SPAWN_RULES = [
   { id: 3, minDepth: 0.4, rarity: 0.15 }, // stone

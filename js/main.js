@@ -40,7 +40,7 @@ function initializeWorld(seed) {
 }
 
 // setup initial world
-initializeWorld(6742);
+initializeWorld(Math.floor(Math.random() * 100000));
 
 // hook up UI
 document.getElementById('generateBtn').addEventListener('click', () => {

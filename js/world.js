@@ -3,12 +3,13 @@ import {
   WORLD_HEIGHT,
   BEDROCK,
   BLOCK_SPAWN_RULES,
-  CAVE_RADIUS_RANGE
+  CAVE_RADIUS_RANGE,
+  WATER  // <- make sure you import WATER
 } from './constants.js';
 
 import { Noise } from './util.js';
 
-let worldSeed = 6742;  // default seed
+let worldSeed = 6742;
 let currentWorld = null;
 
 function mulberry32(seed) {
@@ -30,15 +31,16 @@ export function getSeed() {
 
 export function createWorld() {
   const world = [];
-
   const rng = mulberry32(worldSeed);
   const noise = new Noise(worldSeed / 10000);
   
   const baseHeight = Math.floor(WORLD_HEIGHT * 0.5);
-  const amplitude = 5;
-  const frequency = 0.05;
+  const amplitude = 4;
+  const frequency = 0.04;
 
   let surface = [];
+
+  // Terrain surface generation
   for (let x = 0; x < WORLD_WIDTH; x++) {
     const nx = x * frequency;
     let height = Math.floor(baseHeight + noise.simplex2(nx, 0) * amplitude);
@@ -46,6 +48,7 @@ export function createWorld() {
     surface[x] = height;
   }
 
+  // Terrain fill
   for (let y = 0; y < WORLD_HEIGHT; y++) {
     world[y] = [];
     for (let x = 0; x < WORLD_WIDTH; x++) {
@@ -72,19 +75,68 @@ export function createWorld() {
     }
   }
 
-  const cavernAttempts = Math.floor((WORLD_WIDTH + WORLD_HEIGHT) * 0.08);
+  // Pond generation
 
+function isEligiblePondTile(x, surface, world) {
+  const y = surface[x];
+  if (y >= WORLD_HEIGHT - 2) return false;
+
+  // Top must be air
+  if (y - 1 >= 0 && world[y - 1][x] !== 0) return false;
+
+  // Left neighbor exists
+  if (x > 0) {
+    const leftY = surface[x - 1];
+    if (world[leftY][x - 1] === 0) return false;
+  }
+
+  // Right neighbor exists
+  if (x < WORLD_WIDTH - 1) {
+    const rightY = surface[x + 1];
+  }
+
+  return true;
+}
+
+  function processEligibleGroup(group) {
+    for (let pondX of group) {
+      if (rng() < 0.5) {
+        const pondY = surface[pondX];
+        world[pondY + 1][pondX] = WATER;
+        if (pondY + 2 < WORLD_HEIGHT - 2) {
+          world[pondY + 2][pondX] = WATER;
+        }
+      }
+    }
+  }
+
+  let eligibleGroup = [];
+
+  for (let x = 0; x < WORLD_WIDTH; x++) {
+    if (isEligiblePondTile(x, surface, world)) {
+      eligibleGroup.push(x);
+    } else {
+      if (eligibleGroup.length > 0) {
+        processEligibleGroup(eligibleGroup);
+        eligibleGroup = [];
+      }
+    }
+  }
+  if (eligibleGroup.length > 0) {
+    processEligibleGroup(eligibleGroup);
+  }
+
+  // Cavern generation
+  const cavernAttempts = Math.floor((WORLD_WIDTH + WORLD_HEIGHT) * 0.08);
   for (let i = 0; i < cavernAttempts; i++) {
     let cx = Math.floor(rng() * WORLD_WIDTH);
     const surfaceLimit = surface[cx];
     const bufferFromSurface = 6;
     const minY = surfaceLimit + bufferFromSurface;
     const maxY = WORLD_HEIGHT - 4;
-
     if (minY >= maxY) continue;
 
     let cy = Math.floor(minY + rng() * (maxY - minY));
-
     const blobs = 1 + Math.floor(rng() * 3);
     
     for (let b = 0; b < blobs; b++) {
@@ -96,7 +148,6 @@ export function createWorld() {
         for (let x = -radius; x <= radius; x++) {
           const nx = cx + x;
           const ny = cy + y;
-
           if (
             nx > 0 && nx < WORLD_WIDTH - 1 &&
             ny > 0 && ny < WORLD_HEIGHT - 2 &&
@@ -111,7 +162,6 @@ export function createWorld() {
           }
         }
       }
-
       cx += Math.floor((rng() - 0.5) * radius * 0.8);
       cy += Math.floor((rng() - 0.3) * radius * 0.5);
       cy = Math.max(minY, Math.min(maxY, cy));
