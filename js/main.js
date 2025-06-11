@@ -1,7 +1,7 @@
 import { TILE_SIZE, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY } from './constants.js';
-import { createWorld } from './world.js';
+import { createWorld, setSeed, getSeed } from './world.js';
 import { player, movePlayer, applyPhysics, findSpawn } from './player.js';
-import { camX, camY, updateCamera, getCameraOffset } from './camera.js';
+import { camX, camY, updateCamera } from './camera.js';
 import { keys, scale, setupInput } from './input.js';
 import { getMouseTile } from './util.js';
 import { draw } from './render.js';
@@ -16,25 +16,38 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-let world = createWorld();
+// global world variable
+let world = null;
 let hoverTile = null;
+let getHoverTile = null;
 
-const getHoverTile = setupInput(
-  canvas,
-  e => getMouseTile(e, canvas, scale, { x: camX, y: camY }, TILE_SIZE),
-  world, WORLD_WIDTH, WORLD_HEIGHT
-);
-
-function initWorld(seed) {
-  world = createWorld(seed);
+// initialize world for first time
+function initializeWorld(seed) {
+  setSeed(seed);
+  world = createWorld();
   const spawn = findSpawn(world);
   player.x = spawn.x;
   player.y = spawn.y;
-  player.vx = 0;
-  player.vy = 0;
-  updateCamera(player, TILE_SIZE, canvas, scale);
-  hoverTile = null;
+
+  // re-setup input with the new world
+  getHoverTile = setupInput(
+    canvas,
+    e => getMouseTile(e, canvas, scale, { x: camX, y: camY }, TILE_SIZE),
+    world, WORLD_WIDTH, WORLD_HEIGHT
+  );
+
+  console.log(`World generated with seed ${getSeed()}`);
 }
+
+// setup initial world
+initializeWorld(6742);
+
+// hook up UI
+document.getElementById('generateBtn').addEventListener('click', () => {
+  const seedInput = parseInt(document.getElementById('seedInput').value);
+  const newSeed = isNaN(seedInput) ? Math.floor(Math.random() * 100000) : seedInput;
+  initializeWorld(newSeed);
+});
 
 function update(dt) {
   player.vx = 0;
@@ -63,9 +76,3 @@ function loop(timestamp) {
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
-
-document.getElementById('generateBtn').addEventListener('click', () => {
-  const seedValue = document.getElementById('seedInput').value;
-  const seed = parseInt(seedValue);
-  initWorld(isNaN(seed) ? 6745 : seed);
-});
