@@ -1,4 +1,4 @@
-export const TILE_SIZE = 128;
+export const TILE_SIZE = 96;
 export const WORLD_WIDTH = 50;
 export const WORLD_HEIGHT = 80;
 export const GRAVITY = 0.0025;
