@@ -24,7 +24,7 @@ export function draw(ctx, canvas, scale, camX, camY, world, player, hoverTile) {
 
         // If this is dirt and air is above, draw a 1-pixel green line on top
         if (
-          tile === 2 && // dirt
+          tile != 6 && // dirt
           y > 0 && world[y - 1][x] === 0 // air above
         ) {
           ctx.fillStyle = "#00cc00"; // grass green
