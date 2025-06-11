@@ -5,9 +5,22 @@
   <style>
     canvas { background: #87CEEB; display: block; margin: 0; padding: 0; width: 100vw; height: 100vh; }
     body { margin: 0; overflow: hidden; }
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255,255,255,0.8);
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
+  <div id="controls">
+  <input type="text" id="seedInput" placeholder="Enter seed..." />
+  <button id="generateBtn">Generate</button>
+</div>
 <canvas id="game"></canvas>
 <script type="module" src="js/main.js"></script>
 </body>
